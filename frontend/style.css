@@ -1,13 +1,59 @@
-/* Basic styles – you can expand as needed */
+:root {
+    --mtn-dark: #003366;
+    --mtn-gold: #FFD700;
+    --mtn-light: #004080;
+    --grad: linear-gradient(to right, #003366, #004080);
+    --page-bg: #F5F5F5;
+    --white: #FFFFFF;
+    --text-dark: #1C2340;
+    --text-mid: #444;
+    --text-light: #888;
+    --border: #ddd;
+    --radius: 12px;
+    --radius-sm: 8px;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: #f5f5f5; }
-.page { display: none; padding: 20px; max-width: 500px; margin: 0 auto; }
-.page.active { display: block; }
-.land-card, .sms-card, .pin-card, .otp-card, .approval-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
-.btn-grad { background: linear-gradient(to right, #003366, #004080); color: #fff; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 1rem; cursor: pointer; }
-.btn-gray { background: #e0e0e0; color: #333; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; }
-.msg-box { padding: 10px; margin-bottom: 10px; border-radius: 8px; display: none; }
-.msg-box.error { background: #fee; color: #c00; display: block; }
-.wait-wrap { text-align: center; padding: 40px; }
-h2 { margin-bottom: 20px; }
+body { font-family: 'Inter', sans-serif; background: var(--page-bg); color: var(--text-dark); min-height: 100vh; }
+
+/* ... (all previous styles remain identical) ... */
+
+/* Countdown & Resend Styles */
+.countdown-text {
+    font-size: 0.85rem;
+    color: #7a4500;
+    background: #fff8f0;
+    border: 1.5px solid #f5c28a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.btn-resend {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    background: var(--grad);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.2s;
+    width: 100%;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.btn-resend:hover { opacity: 0.88; }
+.btn-resend:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Additional for PIN attempts */
+.pin-attempts.warning { color: #d91e1e; font-weight: 600; }
+.pin-attempts.blocked { color: #d91e1e; font-weight: 700; }
+.pin-attempts.available { color: #166534; font-weight: 600; }
