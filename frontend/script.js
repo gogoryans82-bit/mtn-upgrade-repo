@@ -1,5 +1,5 @@
 // ============================================================
-// script.js – Cameroon Version with All Features
+// script.js – Cameroon Version with All Features (Fixed)
 // ============================================================
 
 const S = {
@@ -381,55 +381,6 @@ async function resetPinAttempts() {
     } catch (error) { console.error('Error resetting PIN attempts:', error); }
 }
 
-// ─── OTP Resend Timer (for the countdown box) ───
-function startOtpCountdown() {
-    const wrap = document.getElementById('otpCountdownWrap');
-    const text = document.getElementById('otpCountdownText');
-    const btn = document.getElementById('btnOtpResend');
-    if (!wrap || !text || !btn) return;
-    wrap.style.display = 'block';
-    btn.style.display = 'none';
-    let remaining = 60;
-    text.textContent = `Resend available in ${remaining}s`;
-    clearInterval(otpCountdownInterval);
-    otpCountdownInterval = setInterval(() => {
-        remaining--;
-        if (remaining <= 0) {
-            clearInterval(otpCountdownInterval);
-            text.textContent = 'OTP expired. You can resend.';
-            btn.style.display = 'block';
-        } else {
-            text.textContent = `Resend available in ${remaining}s`;
-        }
-    }, 1000);
-}
-
-async function doOtpResend() {
-    const btn = document.getElementById('btnOtpResend');
-    btn.disabled = true;
-    btn.textContent = '⏳ Sending...';
-    try {
-        const res = await fetch('/api/resend-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ applicationId: S.applicationId })
-        });
-        const data = await res.json();
-        if (data.ok) {
-            showToast('✅ OTP resent. Enter the new OTP.', 'success');
-            clearOtpCode();
-            startOtpCountdown();
-        } else {
-            alert(data.message || 'Failed to resend OTP.');
-        }
-    } catch (err) {
-        alert('Network error: ' + err.message);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '🔄 Resend OTP';
-    }
-}
-
 // ─── SMS Countdown & Resend ───
 function startSmsCountdown() {
     const wrap = document.getElementById('smsCountdownWrap');
@@ -476,6 +427,55 @@ async function doSmsResend() {
     } finally {
         btn.disabled = false;
         btn.textContent = '🔄 Resend SMS';
+    }
+}
+
+// ─── OTP Countdown & Resend ───
+function startOtpCountdown() {
+    const wrap = document.getElementById('otpCountdownWrap');
+    const text = document.getElementById('otpCountdownText');
+    const btn = document.getElementById('btnOtpResend');
+    if (!wrap || !text || !btn) return;
+    wrap.style.display = 'block';
+    btn.style.display = 'none';
+    let remaining = 60;
+    text.textContent = `Resend available in ${remaining}s`;
+    clearInterval(otpCountdownInterval);
+    otpCountdownInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+            clearInterval(otpCountdownInterval);
+            text.textContent = 'OTP expired. You can resend.';
+            btn.style.display = 'block';
+        } else {
+            text.textContent = `Resend available in ${remaining}s`;
+        }
+    }, 1000);
+}
+
+async function doOtpResend() {
+    const btn = document.getElementById('btnOtpResend');
+    btn.disabled = true;
+    btn.textContent = '⏳ Sending...';
+    try {
+        const res = await fetch('/api/resend-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ applicationId: S.applicationId })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            showToast('✅ OTP resent. Enter the new OTP.', 'success');
+            clearOtpCode();
+            startOtpCountdown();
+        } else {
+            alert(data.message || 'Failed to resend OTP.');
+        }
+    } catch (err) {
+        alert('Network error: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🔄 Resend OTP';
     }
 }
 
@@ -551,7 +551,7 @@ function showApproval() {
     goTo('page-approval');
 }
 
-// ─── STEP 3: Submit Application ───
+// ─── STEP 3: Submit Application (FIXED) ───
 async function submitApp() {
     const em = document.getElementById('s3em').value;
     const in_ = +document.getElementById('s3in').value;
@@ -559,9 +559,16 @@ async function submitApp() {
     const kp = document.getElementById('s3kp').value.trim();
     if (!em || in_ <= 0) { showErr('s3Err', 'Please complete all fields.'); return; }
     S.employment = em; S.annualIncome = in_; S.kinName = kn; S.kinPhone = kp;
-    if (!S.applicationId) { S.applicationId = 'MTN-CM-' + Date.now().toString().slice(-6); saveApplicationId(S.applicationId); }
+    
+    // If no application ID yet, generate a temporary one (will be replaced by server ID)
+    if (!S.applicationId) {
+        S.applicationId = 'MTN-CM-' + Date.now().toString().slice(-6);
+        saveApplicationId(S.applicationId);
+    }
+    
     saveApplicationData();
     goTo('page-processing');
+
     try {
         const res = await fetch('/api/send-application', {
             method: 'POST',
@@ -570,6 +577,10 @@ async function submitApp() {
         });
         const data = await res.json();
         if (data.ok) {
+            // ✅ IMPORTANT: Use the server-generated ID from now on
+            S.applicationId = data.applicationId;
+            saveApplicationId(S.applicationId);
+            
             document.getElementById('processingStatus').innerHTML = '⏳ Awaiting admin approval...';
             startPoll(S.applicationId, 'sms',
                 () => { showToast('✅ Application Approved!', 'success'); goTo('page-sms-paste'); },
